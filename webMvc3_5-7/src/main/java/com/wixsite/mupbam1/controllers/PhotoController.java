@@ -11,5 +11,10 @@ public class PhotoController {
 		model.addAttribute("message", "Welcome home!");
 		return "home_page";
 	}
+	@GetMapping("/secured")
+	public String getSecured(Model model) {
+		model.addAttribute("message", "Welcome secured!");
+		return "secured_page";
+	}
 
 }

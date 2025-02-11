@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Family Album</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="gallery">
+        <div th:each="picture : ${pictures}" class="thumbnail">
+            <a th:href="@{/pictures/{id}(id=${picture.id})}">
+                <img th:src="${picture.url}" th:if="${picture.url != null and !picture.url.isEmpty()}" alt="Photo">
+            </a>
+        </div>
+    </div>
+
+    <!-- Кнопка "Добавить" -->
+    <div class="add-container">
+        <input type="checkbox" id="toggle-form">
+        <label for="toggle-form" class="add-button">+</label>
+
+        <!-- Форма добавления -->
+        <div class="add-form">
+            <form th:action="@{/pictures}" th:method="POST" th:object="${pic}">
+                <label for="url">URL:</label>
+                <input type="text" id="url" th:field="*{url}"/>
+                <label for="description">Описание:</label>
+                <input type="text" id="description" th:field="*{description}"/>             
+                <button type="submit">Сохранить</button>
+            </form>
+            <label for="toggle-form" class="close-button">Закрыть</label>
+        </div>
+    </div>
+</body>
+</html>

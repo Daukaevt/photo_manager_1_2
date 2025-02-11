@@ -2,6 +2,7 @@ package com.wixsite.mupbam1.servises;
 
 import java.util.List;
 
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.wixsite.mupbam1.models.Picture;
@@ -36,4 +37,25 @@ public class PictureService {
     public void deletePicture(Long id) {
         pictureRepository.deleteById(id);
     }
+    
+    // Получение уникального имени пользователя
+ 	public String getOwner(OAuth2User oauth2User) {
+ 		String uniqueUser = null;
+ 		if (googleUser(oauth2User)) {
+ 			uniqueUser = oauth2User.getAttribute("email");
+ 		} else if (githubUser(oauth2User)) {
+ 			uniqueUser = "https://github.com/".concat(oauth2User.getAttribute("login"));
+ 		} else {
+ 			return "unknown_owner";
+ 		}
+ 		return uniqueUser;
+ 	}
+
+ 	public boolean githubUser(OAuth2User oauth2User) {
+ 		return oauth2User.getAttribute("id") != null;
+ 	}
+
+ 	public boolean googleUser(OAuth2User oauth2User) {
+ 		return oauth2User.getAttribute("sub") != null;
+ 	}
 }

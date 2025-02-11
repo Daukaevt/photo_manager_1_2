@@ -1,5 +1,7 @@
 package com.wixsite.mupbam1.controllers;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +29,8 @@ public class PictureController {
     }
 
     @PostMapping
-    public String addPicture(@ModelAttribute Picture picture) {
-    	picture.setOwner_key("google");
+    public String addPicture(@ModelAttribute Picture picture, Authentication authentication) {
+    	picture.setOwner_key(userName(authentication));
         pictureService.savePicture(picture);
         return "redirect:/pictures";
     }
@@ -49,6 +51,14 @@ public class PictureController {
     public String deletePicture(@PathVariable Long id) {
         pictureService.deletePicture(id);
         return "redirect:/pictures";
+    }
+    
+    public String userName(Authentication authentication) {
+    	String uniqueUserName = null;
+    	 if (authentication.getPrincipal() instanceof OAuth2User oauth2User) {
+    		 uniqueUserName = pictureService.getOwner(oauth2User);
+    	 }
+    	return uniqueUserName;
     }
 }
 

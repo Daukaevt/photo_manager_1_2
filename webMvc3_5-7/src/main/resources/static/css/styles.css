@@ -85,6 +85,10 @@ body {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+.add-button:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease-in-out;
+}
 
 /* Форма добавления */
 .add-form {
@@ -183,7 +187,10 @@ body {
 .action-button.delete {
     background-color: #dc3545;
 }
-
+.action-button:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease-in-out;
+}
 /* Форма редактирования и удаления */
 .edit-form, .confirm-delete {
     display: none;
@@ -239,6 +246,25 @@ body {
     padding: 5px;
     border-radius: 5px;
     cursor: pointer;
+}
+
+
+@media (max-width: 1200px) {
+    .gallery {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery {
+        grid-template-columns: repeat(1, 1fr);
+    }
 }
 
 

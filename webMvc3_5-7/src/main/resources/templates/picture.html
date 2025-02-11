@@ -2,56 +2,44 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Photo</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <div class="photo-viewer">
-        <img th:src="${picture.url}" id="photo" class="fullscreen">
+        <input type="checkbox" id="edit-toggle">
+        <input type="checkbox" id="delete-toggle">
 
-        <button id="edit-button">Редактировать</button>
-        <button id="delete-button">Удалить</button>
+        <a href="/pictures" class="photo-wrapper">
+            <img th:src="${picture.url}" alt="Photo" class="fullscreen">
+        </a>
 
-        <div id="edit-form" class="hidden">
+        <!-- Кнопки "Редактировать" и "Удалить" -->
+        <div class="button-container">
+            <label for="edit-toggle" class="action-button">✏</label>
+            <label for="delete-toggle" class="action-button delete">🗑</label>
+        </div>
+
+        <!-- Форма редактирования -->
+        <div class="edit-form">
             <form th:action="@{/pictures/{id}/edit(id=${picture.id})}" method="post">
-                <label>URL:</label>
-                <input type="text" name="url" th:value="${picture.url}" required>
-                <label>Описание:</label>
+                <label for="url">URL:</label>
+                <input type="text" id="url" name="url" th:value="${picture.url}" required>
+                <label for="description">Описание:</label>
                 <textarea name="description" th:text="${picture.description}"></textarea>
                 <button type="submit">Сохранить</button>
             </form>
-            <button id="close-edit-form">Закрыть</button>
+            <label for="edit-toggle" class="close-button">Закрыть</label>
         </div>
 
-        <div id="confirm-delete" class="hidden">
+        <!-- Подтверждение удаления -->
+        <div class="confirm-delete">
             <p>Вы уверены?</p>
             <form th:action="@{/pictures/{id}/delete(id=${picture.id})}" method="post">
                 <button type="submit">Да</button>
-                <button id="cancel-delete">Нет</button>
             </form>
+            <label for="delete-toggle" class="close-button">Нет</label>
         </div>
     </div>
-
-    <script>
-        document.getElementById("photo").addEventListener("click", function() {
-            window.history.back();
-        });
-
-        document.getElementById("edit-button").addEventListener("click", function() {
-            document.getElementById("edit-form").classList.remove("hidden");
-        });
-
-        document.getElementById("close-edit-form").addEventListener("click", function() {
-            document.getElementById("edit-form").classList.add("hidden");
-        });
-
-        document.getElementById("delete-button").addEventListener("click", function() {
-            document.getElementById("confirm-delete").classList.remove("hidden");
-        });
-
-        document.getElementById("cancel-delete").addEventListener("click", function(event) {
-            event.preventDefault();
-            document.getElementById("confirm-delete").classList.add("hidden");
-        });
-    </script>
 </body>
 </html>
+

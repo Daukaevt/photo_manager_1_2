@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome!</title>
+    <style>
+        body {
+             background: url([[@{${background_path}}]]})
+                    no-repeat center center fixed;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
+            margin: 0;
+            height: 100vh; /* Устанавливаем высоту на весь экран */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white; /* Белый текст для контраста */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Можно добавить дополнительные стили для изображения, если нужно */
+        img {
+            max-width: 100%; /* Изображение будет подстраиваться под размер экрана */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Используем Thymeleaf для подставления пути к изображению
+    <img th:src="@{${background_path}}" alt="Girl in a jacket" width="500" height="600">
+     -->
+</body>
+</html>

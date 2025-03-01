@@ -35,9 +35,9 @@ public class Picture {
     private String description;
     private String owner_key;
 
-    @Column(name = "created_at", updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    @CreationTimestamp
-    private Date createdAt;
+   // @Column(name = "created_at", updatable = false)
+   // @Temporal(TemporalType.TIMESTAMP)
+   // @CreationTimestamp
+   // private Date createdAt;
 }
 

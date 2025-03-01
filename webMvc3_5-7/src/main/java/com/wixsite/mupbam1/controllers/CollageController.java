@@ -1,53 +1,120 @@
 package com.wixsite.mupbam1.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wixsite.mupbam1.models.Picture;
+import com.wixsite.mupbam1.services.CloudinaryService;
+import com.wixsite.mupbam1.servises.PictureService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+@Controller
+@RequestMapping("/collage")
+public class CollageController {
+    private final CloudinaryService cloudinaryService;
+    private final PictureService pictureService;
+
+    public CollageController(CloudinaryService cloudinaryService, PictureService pictureService) {
+        this.cloudinaryService = cloudinaryService;
+        this.pictureService = pictureService;
+    }
+
+    @GetMapping
+    public String getCollage(Model model, 
+                             @RequestParam(defaultValue = "0") int page, 
+                             @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Picture> picturePage = pictureService.getPicturesPaginated(pageable);
+
+        // Асинхронная обработка изображений
+        List<CompletableFuture<Picture>> futurePictures = picturePage.getContent()
+            .stream()
+            .map(picture -> CompletableFuture.supplyAsync(() -> processPicture(picture)))
+            .collect(Collectors.toList());
+
+        // Ожидаем завершения всех загрузок
+        List<Picture> processedPictures = futurePictures.stream()
+            .map(CompletableFuture::join)
+            .collect(Collectors.toList());
+
+        model.addAttribute("photos", processedPictures);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", picturePage.getTotalPages());
+        return "collage";
+    }
+
+    private Picture processPicture(Picture picture) {
+        try {
+            String uploadedUrl = cloudinaryService.uploadImage(picture.getUrl());
+            return new Picture(null, uploadedUrl, picture.getDescription(), "google");
+        } catch (IOException e) {
+            System.err.println("Ошибка загрузки изображения: " + e.getMessage());
+            return picture; // Возвращаем оригинальный объект, если ошибка
+        }
+    }
+}
+
+
+
+/*
+import com.wixsite.mupbam1.models.Photo;
 import com.wixsite.mupbam1.services.CloudinaryService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("/collage")
 public class CollageController {
+    private CloudinaryService cloudinaryService = new CloudinaryService();
+    private final List<Photo> processedPhotos = new ArrayList<>();
+    private boolean isProcessed = false; // Флаг, чтобы не загружать повторно
+    private int COUNT;
 
-    @Autowired
-    private CloudinaryService cloudinaryService;
+    // Предварительный список URL и описаний
+    private final List<Photo> initialPhotos = List.of(
+        new Photo(1, "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0", "Морской закат"),
+        new Photo(2, "https://images.unsplash.com/photo-1521747116042-5a810fda9664", "Городской стиль"),
+        new Photo(3, "https://images.unsplash.com/photo-1517841905240-472988babdf9", "Портрет собаки")
+    );
 
-    private final List<String> imageUrls = new ArrayList<>();
-    
-    {
-    	imageUrls.add("https://iili.io/2mqfOV1.jpg");
-    }
-    
-    @GetMapping("/")
-    public String welcomePage(Model model) {
-        model.addAttribute("background_path", 
-        		"https://img.freepik.com/free-vector/photo-album-cartoon-illustration-with-human-hand-holding-pencil-writing-explanation-photograph-scrapbook-page_1284-28262.jpg?t=st=1740765764~exp=1740769364~hmac=e4d3e9fe52bf1f0ede45fbca6e678cae0ba32a4f3d11c1c1de301544fed7a949&w=826");
-        return "welcome";  // Отображаем приветственную страницу с миниатюрами
-    }
-
-    @GetMapping("/collage")
-    public String showForm(Model model) {
-        model.addAttribute("imageUrls", imageUrls);
-        return "collage";  // Отображаем главную страницу с миниатюрами
+    public CollageController(CloudinaryService cloudinaryService) {
+        this.cloudinaryService = cloudinaryService;
     }
 
-    @PostMapping("/upload")
-    public String uploadImage(@RequestParam("imageUrl") String imageUrl, Model model) {
-        try {
-            String uploadedUrl = cloudinaryService.uploadImage(imageUrl);
-            imageUrls.add(uploadedUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Ошибка при загрузке изображения");
+    @GetMapping
+    public String getCollage(Model model) {
+        if (!isProcessed) {
+            processInitialPhotos();
+            isProcessed = true;
         }
-        model.addAttribute("imageUrls", imageUrls);
+        model.addAttribute("pictures", processedPhotos);
         return "collage";
     }
+
+    private void processInitialPhotos() {
+        for (Photo photo : initialPhotos) {
+            try {
+                String uploadedUrl = cloudinaryService.uploadImage(photo.getUrl());
+                processedPhotos.add(new Photo(COUNT++, uploadedUrl, photo.getDescription()));
+            } catch (IOException e) {
+                System.err.println("Ошибка загрузки изображения: " + e.getMessage());
+            }
+        }
+    }
 }
+*/

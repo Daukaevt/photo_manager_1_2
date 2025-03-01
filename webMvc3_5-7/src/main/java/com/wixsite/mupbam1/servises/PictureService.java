@@ -10,14 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.wixsite.mupbam1.models.Picture;
 import com.wixsite.mupbam1.repository.PictureRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PictureService {
     private final PictureRepository pictureRepository;
-
+   
     public List<Picture> getAllPictures() {
         return pictureRepository.findAll();
     }

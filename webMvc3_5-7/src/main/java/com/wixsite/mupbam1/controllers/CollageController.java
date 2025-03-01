@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -35,31 +34,20 @@ public class CollageController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Picture> picturePage = pictureService.getPicturesPaginated(pageable);
 
-        // Асинхронная обработка изображений
-        List<CompletableFuture<Picture>> futurePictures = picturePage.getContent()
-            .stream()
-            .map(picture -> CompletableFuture.supplyAsync(() -> processPicture(picture)))
+        List<String> urls = picturePage.getContent().stream()
+            .map(Picture::getUrl)
             .collect(Collectors.toList());
 
-        // Ожидаем завершения всех загрузок
-        List<Picture> processedPictures = futurePictures.stream()
-            .map(CompletableFuture::join)
+        CompletableFuture<List<String>> uploadFuture = cloudinaryService.uploadImagesAsync(urls);
+
+        List<Picture> processedPictures = uploadFuture.join().stream()
+            .map(uploadedUrl -> new Picture(null, uploadedUrl, "Описание", "google"))
             .collect(Collectors.toList());
 
         model.addAttribute("photos", processedPictures);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", picturePage.getTotalPages());
         return "collage";
-    }
-
-    private Picture processPicture(Picture picture) {
-        try {
-            String uploadedUrl = cloudinaryService.uploadImage(picture.getUrl());
-            return new Picture(null, uploadedUrl, picture.getDescription(), "google");
-        } catch (IOException e) {
-            System.err.println("Ошибка загрузки изображения: " + e.getMessage());
-            return picture; // Возвращаем оригинальный объект, если ошибка
-        }
     }
 }
 

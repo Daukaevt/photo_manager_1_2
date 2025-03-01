@@ -9,7 +9,8 @@
     
     <div class="gallery">
         <div th:each="photo : ${photos}" class="thumbnail">
-            <img th:src="${photo.url}" th:if="${photo.url != null and !photo.url.isEmpty()}" alt="Photo">
+            <img th:src="${photo.url}" loading="lazy" th:if="${photo.url != null and !photo.url.isEmpty()}" alt="Photo">
+
             <p th:text="${photo.description}"></p>
         </div>
     </div>

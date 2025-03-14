@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.wixsite.mupbam1.models.Picture;
-import com.wixsite.mupbam1.servises.PictureService;
+import com.wixsite.mupbam1.services.PictureService;
 
 import lombok.RequiredArgsConstructor;
 import java.util.Arrays;

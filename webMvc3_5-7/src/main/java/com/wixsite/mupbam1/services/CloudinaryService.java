@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import io.github.cdimascio.dotenv.Dotenv;
+import com.wixsite.mupbam1.models.Picture;
+import com.wixsite.mupbam1.repository.PictureRepository;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,10 +18,12 @@ import java.util.stream.Collectors;
 public class CloudinaryService {
 
     private final Cloudinary cloudinary;
+    private final PictureRepository pictureRepository;
 
-    public CloudinaryService() {
+    public CloudinaryService(PictureRepository pictureRepository) {
         Dotenv dotenv = Dotenv.load();
         this.cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
+        this.pictureRepository = pictureRepository;
     }
 
     // Асинхронная пакетная загрузка изображений
@@ -53,4 +57,6 @@ public class CloudinaryService {
         ));
         return (String) uploadResult.get("secure_url");
     }
+
+   
 }

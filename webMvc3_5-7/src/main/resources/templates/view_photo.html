@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Просмотр фотографии</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .photo-container {
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+        }
+        .photo-container img {
+            max-width: 80%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .description {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .action-buttons a, .action-buttons button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .action-buttons .delete {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Просмотр фотографии</h1>
+
+    <div class="photo-container">
+        <img th:src="${photo.url}" alt="Photo">
+        <p class="description" th:text="${photo.description}"></p>
+    </div>
+
+    <!-- ✅ Кнопки "Редактировать" и "Удалить" -->
+    <div class="action-buttons">
+        <a th:href="@{/collage/view/{id}(id=${photo.id}, editMode=true)}">✏️ Редактировать</a>
+
+        <form th:action="@{/collage/delete/{id}(id=${photo.id})}" method="post">
+            <button type="submit" class="delete" onclick="return confirm('Удалить изображение?')">Удалить</button>
+        </form>
+    </div>
+
+    <!-- ✅ Форма редактирования -->
+    <div th:if="${editMode}">
+        <h2>Редактирование</h2>
+        <form th:action="@{/collage/update/{id}(id=${photo.id})}" method="post">
+            <input type="hidden" name="id" th:value="${photo.id}">
+            <label>URL изображения:</label>
+            <input type="text" name="url" th:value="${photo.url}" required>
+            <label>Описание:</label>
+            <input type="text" name="description" th:value="${photo.description}" required>
+            <button type="submit">✅ Сохранить</button>
+        </form>
+    </div>
+
+</body>
+</html>
+

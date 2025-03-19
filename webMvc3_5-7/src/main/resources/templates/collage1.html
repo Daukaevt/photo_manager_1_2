@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Collage</title>
-    <link rel="stylesheet" href="/css/styles.css">
+<title>Collage</title>
+<link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <h1>Коллаж изображений</h1>
-<!-- Форма для ОДНОГО изображения -->
-<form th:action="@{/collage/upload}" method="post">
-    <input type="text" name="urls" placeholder="Введите URL изображения" required>
+	<h1>Коллаж изображений</h1>
+
+	<!-- Универсальная форма загрузки изображений 
+	<form th:action="@{/collage/uploadBatch}" method="post">
+		<textarea name="urls"
+			placeholder="Введите один или несколько URL изображений (разделяйте пробелами или запятыми)"
+			required></textarea>
+		<input type="text" name="description" placeholder="Введите описание"
+			required>
+		<button type="submit">Загрузить</button>
+	</form>
+-->
+	<div class="gallery">
+		<div th:each="photo : ${photos}" class="thumbnail">
+			<a th:href="@{/collage/view/{id}(id=${photo.id})}"> <img
+				th:src="${photo.url}" loading="lazy"
+				th:if="${photo.url != null and !photo.url.isEmpty()}" alt="Photo">
+			</a>
+			<p th:text="${photo.description}"></p>
+		</div>
+	</div>
+
+	<!-- Постраничный вывод -->
+	<div class="pagination">
+		<a th:href="@{/collage(page=${currentPage - 1}, size=12)}"
+			th:if="${currentPage > 0}">Назад</a> <span
+			th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+		<a th:href="@{/collage(page=${currentPage + 1}, size=12)}"
+			th:if="${currentPage + 1 < totalPages}">Вперед</a>
+	</div>
+	
+	<form th:action="@{/collage/uploadBatch(page=${currentPage}, size=12)}" method="post">
+    <textarea name="urls" placeholder="Введите один или несколько URL изображений (разделяйте пробелами или запятыми)" required></textarea>
     <input type="text" name="description" placeholder="Введите описание" required>
     <button type="submit">Загрузить</button>
 </form>
-
-<!-- Форма для списка изображений -->
-<form th:action="@{/collage/uploadBatch}" method="post">
-    <textarea name="urls" placeholder="Введите URL изображений через пробел" required></textarea>
-    <input type="text" name="description" placeholder="Введите описание" required>
-    <button type="submit">Загрузить несколько</button>
-</form>
-
-    <!-- Форма для добавления изображения 
-    <form th:action="@{/collage}" th:method="POST">
-        <input type="text" name="url" placeholder="Введите URL изображения" required>
-        <input type="text" name="description" placeholder="Введите описание" required>
-        <button type="submit">Добавить</button>
-    </form>
-    -->
-    
-    <div class="gallery">
-        <div th:each="photo : ${photos}" class="thumbnail">
-            <a th:href="@{/collage/view/{id}(id=${photo.id})}">
-            
-                <img th:src="${photo.url}" loading="lazy" th:if="${photo.url != null and !photo.url.isEmpty()}" alt="Photo">
-            </a>
-            <p th:text="${photo.description}"></p>
-        </div>
-    </div>
-
-    <!-- Постраничный вывод -->
-    <div class="pagination">
-        <a th:href="@{/collage(page=${currentPage - 1}, size=12)}" th:if="${currentPage > 0}">Назад</a>
-        <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
-        <a th:href="@{/collage(page=${currentPage + 1}, size=12)}" th:if="${currentPage + 1 < totalPages}">Вперед</a>
-    </div>
+	
 </body>
 </html>

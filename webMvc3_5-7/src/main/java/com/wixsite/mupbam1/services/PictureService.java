@@ -101,4 +101,8 @@ public class PictureService {
     private boolean googleUser(OAuth2User oauth2User) {
         return oauth2User.getAttribute("sub") != null;
     }
+
+    public long getTotalPicturesCount() {
+        return pictureRepository.count();
+    }
 }

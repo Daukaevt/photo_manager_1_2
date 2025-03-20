@@ -36,22 +36,7 @@ public class CollageController {
         model.addAttribute("totalPages", picturePage.getTotalPages());
         return "collage1";
     }
-/*
-    // ✅ Загрузка ОДНОГО изображения
-    @PostMapping("/upload")
-    public String uploadImage(@ModelAttribute PictureUploadRequest request) throws IOException {
-
-        pictureService.uploadSingleImage(request);
-        return "redirect:/collage";
-    }
-
-    // ✅ Загрузка СПИСКА изображений
-    @PostMapping("/uploadBatch")
-    public String uploadImagesBatch(@ModelAttribute PictureUploadRequest request) {
-        pictureService.uploadMultipleImages(request);
-        return "redirect:/collage";
-    }
-    */
+    
     @PostMapping("/uploadBatch")
     public String uploadImages(@ModelAttribute PictureUploadRequest request) throws IOException {
         List<String> urls = Arrays.stream(request.getUrls().split("\\s+"))
@@ -72,29 +57,42 @@ public class CollageController {
         return "redirect:/collage?page=" + Math.max(lastPage, 0) + "&size=" + pageSize;
     }
 
-
-
-
     @GetMapping("/view/{id}")
     public String viewPicture(@PathVariable Long id, 
-                              @RequestParam(required = false, defaultValue = "false") boolean editMode, 
+                              @RequestParam(required = false, defaultValue = "false") boolean editMode,
+                              @RequestParam(required = false, defaultValue = "0") int page,
                               Model model) {
         Picture picture = pictureService.getPictureById(id);
         model.addAttribute("photo", picture);
-        model.addAttribute("editMode", editMode); // Передаём в шаблон
+        model.addAttribute("editMode", editMode);
+        model.addAttribute("page", page); // ✅ Передаём в шаблон
         return "view_photo";
     }
-
+    
     @PostMapping("/update/{id}")
-    public String updatePicture(@PathVariable Long id, @ModelAttribute Picture newPicture) {
+    public String updatePicture(@PathVariable Long id, 
+                                @ModelAttribute Picture newPicture,
+                                @RequestParam(required = false, defaultValue = "0") int page) {
         pictureService.updatePicture(id, newPicture);
-        return "redirect:/collage/view/" + id; // ✅ Остаёмся на странице просмотра после редактирования
+        return "redirect:/collage?page=" + page + "&size=12"; // Возвращаемся на исходную страницу
     }
 
     @PostMapping("/delete/{id}")
-    public String deletePicture(@PathVariable Long id) {
-        //cloudinaryService.deleteById(id);
-    	pictureService.deletePicture(id);
-        return "redirect:/collage";
+    public String deletePicture(@PathVariable Long id,
+                                @RequestParam(required = false) Integer page) {
+        System.out.println("🔥 Удаление ID: " + id);
+        System.out.println("📄 Полученная страница: " + (page != null ? page : "null"));
+
+        pictureService.deletePicture(id);
+
+        // Если page не передан, отправляем на первую страницу (0)
+        return "redirect:/collage?page=" + (page != null ? page : 0) + "&size=12"; 
     }
+
+
+
+
+
+
+
 }

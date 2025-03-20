@@ -3,27 +3,150 @@
 <head>
 <title>Collage</title>
 <link rel="stylesheet" href="/css/styles.css">
+<style>
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	background-color: #f4f4f4;
+}
+
+.gallery-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 20px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 колонок */
+    gap: 25px; /* Увеличенный отступ */
+    width: 95%;
+    max-width: 1150px;
+}
+
+.gallery + .gallery {
+    margin-top: 20px; /* Создаем пространство между рядами */
+}
+
+.thumbnail {
+    text-align: center;
+    background: white;
+    padding: 5px; /* Меньше белого пространства */
+    border-radius: 8px; /* Чуть скруглим углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.thumbnail img {
+    width: 100%; /* Немного уменьшаем размер картинки */
+    height: auto;
+    border-radius: 8px;
+}
+
+.thumbnail p {
+    font-size: 14px; /* Чуть меньше шрифт */
+    margin-top: 5px; /* Уменьшим отступ сверху */
+    max-height: 40px; /* Ограничим высоту */
+    overflow: hidden; /* Обрежем слишком длинные описания */
+    text-overflow: ellipsis; /* Добавим многоточие для длинных текстов */
+    white-space: nowrap; /* Не переносить строки */
+}
+
+
+.pagination {
+	text-align: center;
+	margin: 20px 0;
+}
+
+.pagination a {
+	margin: 0 10px;
+	text-decoration: none;
+	background-color: #007bff;
+	color: white;
+	padding: 10px 15px;
+	border-radius: 5px;
+}
+
+/* Плавающая кнопка + форма */
+.fab-container {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 100;
+}
+
+.fab-button {
+	width: 60px;
+	height: 60px;
+	background-color: #007bff;
+	border-radius: 50%;
+	color: white;
+	font-size: 30px;
+	text-align: center;
+	line-height: 60px;
+	cursor: pointer;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	transition: transform 0.3s;
+}
+
+.fab-button:hover {
+	transform: scale(1.1);
+}
+
+.upload-form {
+	position: fixed;
+	bottom: 90px;
+	right: 20px;
+	background: white;
+	padding: 15px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	display: none;
+	width: 250px;
+}
+
+.upload-form textarea, .upload-form input {
+	width: 100%;
+	margin-bottom: 10px;
+	padding: 5px;
+}
+
+.upload-form button {
+	width: 100%;
+	background: #007bff;
+	color: white;
+	border: none;
+	padding: 10px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+</style>
 </head>
 <body>
-	<h1>Коллаж изображений</h1>
 
-	<!-- Универсальная форма загрузки изображений 
-	<form th:action="@{/collage/uploadBatch}" method="post">
-		<textarea name="urls"
-			placeholder="Введите один или несколько URL изображений (разделяйте пробелами или запятыми)"
-			required></textarea>
-		<input type="text" name="description" placeholder="Введите описание"
-			required>
-		<button type="submit">Загрузить</button>
-	</form>
--->
-	<div class="gallery">
-		<div th:each="photo : ${photos}" class="thumbnail">
-			<a th:href="@{/collage/view/{id}(id=${photo.id})}"> <img
-				th:src="${photo.url}" loading="lazy"
-				th:if="${photo.url != null and !photo.url.isEmpty()}" alt="Photo">
-			</a>
-			<p th:text="${photo.description}"></p>
+	<!-- Галерея изображений -->
+	<div class="gallery-container">
+		<div class="gallery">
+			<div th:each="photo, iter : ${photos}" class="thumbnail"
+				th:if="${iter.index < 6}">
+				<a
+					th:href="@{/collage/view/{id}(id=${photo.id}, page=${currentPage})}">
+					<img th:src="${photo.url}" loading="lazy" alt="Фото">
+				</a>
+				<p th:text="${photo.description}"></p>
+			</div>
+		</div>
+
+		<div class="gallery">
+			<div th:each="photo, iter : ${photos}" class="thumbnail"
+				th:if="${iter.index >= 6}">
+				<a
+					th:href="@{/collage/view/{id}(id=${photo.id}, page=${currentPage})}">
+					<img th:src="${photo.url}" loading="lazy" alt="Фото">
+				</a>
+				<p th:text="${photo.description}"></p>
+			</div>
 		</div>
 	</div>
 
@@ -35,12 +158,29 @@
 		<a th:href="@{/collage(page=${currentPage + 1}, size=12)}"
 			th:if="${currentPage + 1 < totalPages}">Вперед</a>
 	</div>
-	
-	<form th:action="@{/collage/uploadBatch(page=${currentPage}, size=12)}" method="post">
-    <textarea name="urls" placeholder="Введите один или несколько URL изображений (разделяйте пробелами или запятыми)" required></textarea>
-    <input type="text" name="description" placeholder="Введите описание" required>
-    <button type="submit">Загрузить</button>
-</form>
-	
+
+	<!-- Плавающая кнопка -->
+	<div class="fab-container">
+		<div class="fab-button" onclick="toggleUploadForm()">+</div>
+
+		<!-- Форма загрузки (скрытая) -->
+		<div class="upload-form" id="uploadForm">
+			<form th:action="@{/collage/uploadBatch}" method="post">
+				<textarea name="urls" placeholder="Введите URL изображений" required></textarea>
+				<input type="text" name="description" placeholder="Описание"
+					required> <input type="hidden" name="page"
+					th:value="${currentPage}">
+				<button type="submit">Загрузить</button>
+			</form>
+		</div>
+	</div>
+
+	<script>
+        function toggleUploadForm() {
+            let form = document.getElementById("uploadForm");
+            form.style.display = form.style.display === "block" ? "none" : "block";
+        }
+    </script>
+
 </body>
 </html>

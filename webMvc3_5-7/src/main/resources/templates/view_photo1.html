@@ -67,31 +67,48 @@ body {
 
 /* Форма редактирования */
 .edit-form {
-	position: fixed;
-	bottom: 90px;
-	right: 20px;
-	background: white;
-	padding: 15px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-	display: none;
-	width: 250px;
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: none;
+    width: 260px;
+    position: absolute;
 }
 
+/* Поля ввода */
 .edit-form input {
 	width: 100%;
 	margin-bottom: 10px;
 	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
 }
 
+/* Кнопки */
 .edit-form button {
 	width: 100%;
-	background: #007bff;
-	color: white;
-	border: none;
 	padding: 10px;
+	border: none;
 	border-radius: 5px;
 	cursor: pointer;
+	font-size: 16px;
+	margin-top: 10px;
+}
+
+/* Кнопка сохранения */
+.save-button {
+	background: #007bff;
+	color: white;
+}
+
+/* Кнопка закрытия */
+.close-button {
+	background: #dc3545;
+	color: white;
 }
 </style>
 </head>
@@ -109,8 +126,7 @@ body {
 		<button class="fab-button" onclick="toggleEditForm()">✏️</button>
 
 		<!-- Кнопка удаления -->
-		<form th:action="@{/collage/delete/{id}(id=${photo.id})}"
-			method="post">
+		<form th:action="@{/collage/delete/{id}(id=${photo.id})}" method="post">
 			<input type="hidden" name="page" th:value="${page}">
 			<button type="submit" class="fab-button delete"
 				onclick="return confirm('Удалить изображение?')">🗑️</button>
@@ -119,19 +135,21 @@ body {
 
 	<!-- Форма редактирования (скрытая) -->
 	<div class="edit-form" id="editForm">
-		<form th:action="@{/collage/update/{id}(id=${photo.id}, page=${totalPages != null ? totalPages - 1 : 0})}"
-      method="post">
-    <input type="hidden" name="id" th:value="${photo.id}">
-    <input type="hidden" name="page" th:value="${totalPages != null ? totalPages - 1 : 0}">
-    <label>URL изображения:</label> 
-    <input type="text" name="url" th:value="${photo.url}" required> 
-    <label>Описание:</label> 
-    <input type="text" name="description" th:value="${photo.description}" required>
-    <button type="submit">✅ Сохранить</button>
-</form>
-
+	    <form th:action="@{/collage/update/{id}(id=${photo.id}, page=${totalPages != null ? totalPages - 1 : 0})}"
+	          method="post">
+	        <input type="hidden" name="id" th:value="${photo.id}">
+	        <input type="hidden" name="page" th:value="${totalPages != null ? totalPages - 1 : 0}">
+	        
+	        <label>URL изображения:</label> 
+	        <input type="text" name="url" th:value="${photo.url}" required> 
+	        
+	        <label>Описание:</label> 
+	        <input type="text" name="description" th:value="${photo.description}" required>
+	        
+	        <button type="submit" class="save-button">✅ Сохранить</button>
+	        <button type="button" class="close-button" onclick="toggleEditForm()">❌ Закрыть</button>
+	    </form>
 	</div>
-
 
 	<script>
         function toggleEditForm() {

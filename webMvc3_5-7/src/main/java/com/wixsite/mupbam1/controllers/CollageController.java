@@ -63,18 +63,27 @@ public class CollageController {
                               @RequestParam(required = false, defaultValue = "0") int page,
                               Model model) {
         Picture picture = pictureService.getPictureById(id);
+        
+        // ✅ Получаем общее количество страниц
+        long totalPictures = pictureService.getTotalPicturesCount();
+        int pageSize = 12;
+        int totalPages = (int) Math.ceil((double) totalPictures / pageSize);
+        
         model.addAttribute("photo", picture);
         model.addAttribute("editMode", editMode);
-        model.addAttribute("page", page); // ✅ Передаём в шаблон
-        return "view_photo";
+        model.addAttribute("page", page);
+        model.addAttribute("totalPages", totalPages); // ✅ Теперь totalPages никогда не null
+
+        return "view_photo1";
     }
+
     
     @PostMapping("/update/{id}")
     public String updatePicture(@PathVariable Long id, 
                                 @ModelAttribute Picture newPicture,
-                                @RequestParam(required = false, defaultValue = "0") int page) {
+                                @RequestParam(required = false, defaultValue = "0") Integer page) {
         pictureService.updatePicture(id, newPicture);
-        return "redirect:/collage?page=" + page + "&size=12"; // Возвращаемся на исходную страницу
+        return "redirect:/collage?page=" + (page != null ? page : 0) + "&size=12"; 
     }
 
     @PostMapping("/delete/{id}")
@@ -88,11 +97,4 @@ public class CollageController {
         // Если page не передан, отправляем на первую страницу (0)
         return "redirect:/collage?page=" + (page != null ? page : 0) + "&size=12"; 
     }
-
-
-
-
-
-
-
 }

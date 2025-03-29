@@ -28,11 +28,14 @@ public class PictureService {
     public List<Picture> getAllPictures() {
         return pictureRepository.findAll();
     }
-    
+    public Page<Picture> getPicturesPaginated(String ownerKey, Pageable pageable) {
+        return pictureRepository.findByOwnerKey(ownerKey, pageable);
+    }
+/*
     public Page<Picture> getPicturesPaginated(Pageable pageable) {
         return pictureRepository.findAll(pageable);
     }
-
+*/
     public Picture getPictureById(Long id) {
         return pictureRepository.findById(id).orElseThrow(() -> new RuntimeException("Picture not found"));
     }
@@ -58,20 +61,20 @@ public class PictureService {
     }
 
     // ✅ Обработка одного изображения
-    public void uploadSingleImage(PictureUploadRequest request) throws IOException {
+    public void uploadSingleImage(PictureUploadRequest request, String ownerKey) throws IOException {
         String uploadedUrl = cloudinaryService.uploadImage(request.getUrls());
-        Picture picture = new Picture(null, uploadedUrl, request.getDescription(), "user");
+        Picture picture = new Picture(null, uploadedUrl, request.getDescription(), ownerKey);
         pictureRepository.save(picture);
     }
 
     // ✅ Обработка списка изображений
-    public void uploadMultipleImages(PictureUploadRequest request) {
+    public void uploadMultipleImages(PictureUploadRequest request, String ownerKey) {
         List<Picture> uploadedPictures = Arrays.stream(request.getUrls().split("\\s+")) // Исправлено: убираем лишние пробелы
         	    .map(url -> {
         	        try {
         	            System.out.println("Загрузка: " + url); // Логирование
         	            String uploadedUrl = cloudinaryService.uploadImage(url);
-        	            return new Picture(null, uploadedUrl, request.getDescription(), "user");
+        	            return new Picture(null, uploadedUrl, request.getDescription(), ownerKey);
         	        } catch (IOException e) {
         	            System.err.println("Ошибка загрузки: " + url + " -> " + e.getMessage());
         	            return null;

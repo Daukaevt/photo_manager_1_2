@@ -27,7 +27,7 @@ public class PictureController {
                                  @RequestParam(defaultValue = "12") int size, 
                                  Model model) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Picture> picturePage = pictureService.getPicturesPaginated(pageable);
+        Page<Picture> picturePage = pictureService.getPicturesPaginated(null, pageable);
         model.addAttribute("pic", new Picture());
         model.addAttribute("pictures", picturePage.getContent());
         model.addAttribute("currentPage", page);
